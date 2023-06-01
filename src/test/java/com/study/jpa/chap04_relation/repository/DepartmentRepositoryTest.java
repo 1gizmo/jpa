@@ -99,8 +99,28 @@ class DepartmentRepositoryTest {
             departments.forEach(dept -> {
                 System.out.println("\n\n ===== 사원 리스트 =====");
                 List<Employee> employees = dept.getEmployees();
+                System.out.println(employees);
             });
 
+            System.out.println("\n\n");
             //then
         }
+
+
+    @Test
+    @DisplayName("N+1 문제 해결 예시")
+    void testNPlusSolution () {
+        //given
+        List<Department> departments = departmentRepository.findAllIncludeEmployees();
+        //when
+        departments.forEach(dept -> {
+            System.out.println("\n\n ===== 사원 리스트 =====");
+            List<Employee> employees = dept.getEmployees();
+            System.out.println(employees);
+        });
+
+
+        System.out.println("\n\n");
+        //then
+    }
 }
