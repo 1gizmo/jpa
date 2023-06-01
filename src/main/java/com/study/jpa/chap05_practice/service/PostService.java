@@ -80,12 +80,13 @@ public class PostService {
         List<String> hashTags = dto.getHashTags();
         if (hashTags != null && hashTags.size() > 0) {
             hashTags.forEach(ht -> {
-                hashTagRepository.save(
+                HashTag saveTag = hashTagRepository.save(
                         HashTag.builder()
                                 .tagName(ht)
                                 .post(saved)
                                 .build()
                 );
+                saved.addHashTag(saveTag);
             });
         }
 
