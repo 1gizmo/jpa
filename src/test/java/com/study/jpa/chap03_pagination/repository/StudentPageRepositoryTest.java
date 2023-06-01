@@ -51,9 +51,11 @@ class StudentPageRepositoryTest {
         Pageable pageInfo
                 = PageRequest.of(pageNo - 1,
                 amount,
-                Sort.by("name").ascending()
+                Sort.by((
+                        Sort.Order.desc("name")),
+                        Sort.Order.asc("city")
                 // 정렬 기준 필드명
-        );
+                ));
 
         //when
         Page<Student> students
@@ -79,6 +81,22 @@ class StudentPageRepositoryTest {
         System.out.println("next = " + next);
         System.out.println("\n\n\n");
         studentList.forEach(System.out::println);
+        System.out.println("\n\n\n");
+    }
+
+    @Test
+    @DisplayName("이름검색 + 페이징")
+    void testSearchAndPagination() {
+        //given
+        int pageNo = 1 ;
+        int size = 10 ;
+        Pageable pageInfo = PageRequest.of(pageNo -1 , size);
+        //when
+        Page<Student> students = studentPageRepository.findByNameContaining("3", pageInfo);
+
+        //then
+        System.out.println("\n\n\n");
+        students.getContent().forEach(System.out::println);
         System.out.println("\n\n\n");
     }
 
