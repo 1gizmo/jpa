@@ -31,6 +31,10 @@ dependencies {
 
 	// 입력값 검증 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+
+	// swagger api 문서화
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
 }
 
 tasks.named('test') {

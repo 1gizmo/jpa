@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class PostService {
 
     public PostListResponseDTO getPosts(PageDTO dto) {
 
-        // Pageable 객체 생성
+        // Pageable객체 생성
         Pageable pageable = PageRequest.of(
                 dto.getPage() - 1,
                 dto.getSize(),
@@ -43,16 +44,14 @@ public class PostService {
 
         List<PostDetailResponseDTO> detailList
                 = postList.stream()
-                .map(PostDetailResponseDTO::new
-                )
+                .map(PostDetailResponseDTO::new)
                 .collect(Collectors.toList());
 
-
-        // DB에서 조회한 정보를 JSON 형태에 맞는 DTO로 변환
+        // DB에서 조회한 정보를 JSON형태에 맞는 DTO로 변환
 
         return PostListResponseDTO.builder()
                 .count(detailList.size()) // 총게시물 수가 아니라 조회된 게시물 수
-                .pageInfo(new PageResponseDTO(posts))
+                .pageInfo(new PageResponseDTO<Post>(posts))
                 .posts(detailList)
                 .build();
 
@@ -60,14 +59,18 @@ public class PostService {
 
     public PostDetailResponseDTO getDetail(Long id) {
 
-        Post postEntity = postRepository.findById(id)
+        Post postEntity = getPost(id);
+
+        return new PostDetailResponseDTO(postEntity);
+    }
+
+    private Post getPost(Long id) {
+        return postRepository.findById(id)
                 .orElseThrow(
                         () -> new RuntimeException(
-                                id + "번 게시물이 존재하지 않습니다 ! "
+                                id + "번 게시물이 존재하지 않습니다!"
                         )
                 );
-        // postEntity 를 dto로 변환해서 리턴
-        return new PostDetailResponseDTO(postEntity);
     }
 
     public PostDetailResponseDTO insert(final PostCreateDTO dto)
@@ -80,20 +83,37 @@ public class PostService {
         List<String> hashTags = dto.getHashTags();
         if (hashTags != null && hashTags.size() > 0) {
             hashTags.forEach(ht -> {
-                HashTag saveTag = hashTagRepository.save(
+                HashTag savedTag = hashTagRepository.save(
                         HashTag.builder()
                                 .tagName(ht)
                                 .post(saved)
                                 .build()
                 );
-                saved.addHashTag(saveTag);
+
+                saved.addHashTag(savedTag);
             });
         }
-
         return new PostDetailResponseDTO(saved);
-
-
     }
 
+    public PostDetailResponseDTO modify(final PostModifyDTO dto) {
 
+        // 수정 전 데이터를 조회
+        final Post postEntity = getPost(dto.getPostNo());
+
+        // 수정 시작
+        postEntity.setTitle(dto.getTitle());
+        postEntity.setContent(dto.getContent());
+
+        // 수정 완료
+        Post modifiedPost = postRepository.save(postEntity);
+
+        return new PostDetailResponseDTO(modifiedPost);
+    }
+
+    public void delete(Long id) throws RuntimeException, SQLException {
+
+        postRepository.deleteById(id);
+
+    }
 }
