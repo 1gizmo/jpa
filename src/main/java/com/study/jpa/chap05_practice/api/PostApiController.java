@@ -2,6 +2,8 @@ package com.study.jpa.chap05_practice.api;
 
 import com.study.jpa.chap05_practice.dto.*;
 import com.study.jpa.chap05_practice.service.PostService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +59,13 @@ public class PostApiController {
     }
 
     // 게시물 등록
+    @Parameters({
+            @Parameter(name = "writer", description = "게시물의 작성자 이름을 쓰세요!", example = "김또띠", required = true)
+            , @Parameter(name = "title", description = "게시물의 제목을 쓰세요!", example = "하이 크크루삥빵뽕삥~", required = true)
+            , @Parameter(name = "content", description = "게시물의 내용을 쓰세요!", example = "내용 없어~")
+            , @Parameter(name = "hashTags", description = "게시물의 해시태그를 나열해주세요.", example = "['하하', '호호']")
+    })
+
     @PostMapping
     public ResponseEntity<?> create(
             @Validated @RequestBody PostCreateDTO dto
